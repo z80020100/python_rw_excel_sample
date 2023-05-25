@@ -5,6 +5,7 @@ import pandas as pd
 
 CELL_NAME_ERROR = "cell name is not valid."
 ROW_NAME_ERROR = "row name is not valid."
+RANGE_NAME_ERROR = "range name is not valid."
 
 
 class Workbook:
@@ -21,6 +22,26 @@ class Workbook:
             cell_name)
         sheet = self.workbook[sheet_name]
         return sheet.iloc[row_index, column_index]
+
+    # Use Excel range format
+    def get_range(self, sheet_name, range_name):
+        cutting_index = 0
+        for i, c in enumerate(range_name):
+            if c == ":":
+                cutting_index = i
+                break
+        if cutting_index == 0:
+            raise ValueError(RANGE_NAME_ERROR)
+        # Split range name to start cell and end cell
+        start_cell_name = range_name[:cutting_index]
+        end_cell_name = range_name[cutting_index + 1:]
+        start_row_index, start_column_index = Workbook.convert_cell_name_to_index(
+            start_cell_name)
+        end_row_index, end_column_index = Workbook.convert_cell_name_to_index(
+            end_cell_name)
+        sheet = self.workbook[sheet_name]
+        return sheet.iloc[start_row_index:end_row_index + 1,
+                          start_column_index:end_column_index + 1]
 
     @staticmethod
     def convert_cell_name_to_index(cell_name):
