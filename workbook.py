@@ -13,6 +13,7 @@ UNSUPPORTED_FILE_EXT_ERROR = "unsupported file extension."
 
 
 # File extensions
+FILE_EXT_EXCEL_WORKBOOK = ".xlsx"
 FILE_EXT_EXCEL_MACRO_WORKBOOK = ".xlsm"
 
 
@@ -23,13 +24,15 @@ INDEX_TYPE_OPENPYXL = 1
 
 class Workbook:
 
-    def __init__(self, filename):
+    def __init__(self, filename, writable=False):
         self.filename = filename
         self.extension = filename[filename.rfind("."):].lower()
+        self.read_only = not writable
+        self.data_only = self.read_only
         if self.extension == FILE_EXT_EXCEL_MACRO_WORKBOOK:
-            self.read_only = True
             self.keep_vba = True
-            self.data_only = True
+        elif self.extension == FILE_EXT_EXCEL_WORKBOOK:
+            self.keep_vba = False
         else:
             raise ValueError(UNSUPPORTED_FILE_EXT_ERROR)
         self.workbook = load_workbook(
@@ -56,6 +59,28 @@ class Workbook:
                                min_col=start_column_index,
                                max_col=end_column_index)
         return np.array([[cell.value for cell in row] for row in rows])
+
+    def set_cell(self, sheet_name, cell_name, value):
+        sheet = self.workbook.get_sheet_by_name(sheet_name)
+        row_index, column_index = Workbook.convert_cell_name_to_index(
+            cell_name, INDEX_TYPE_OPENPYXL)
+        sheet.cell(row=row_index, column=column_index).value = value
+
+    def set_range(self, sheet_name, range_name, value):
+        sheet = self.workbook.get_sheet_by_name(sheet_name)
+        start_row_index, end_row_index, start_column_index, end_column_index = Workbook.convert_range_name_index(
+            range_name, INDEX_TYPE_OPENPYXL)
+        rows = sheet.iter_rows(min_row=start_row_index,
+                               max_row=end_row_index,
+                               min_col=start_column_index,
+                               max_col=end_column_index)
+        for row in rows:
+            for cell in row:
+                cell.value = value
+
+    def save(self):
+        if not self.read_only:
+            self.workbook.save(self.filename)
 
     # Use Excel range format and index is for Pandas
     @staticmethod
