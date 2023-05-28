@@ -27,7 +27,12 @@ def main():
     print(column_A)
 
     # Sample for writing
-    wb = Workbook(TARGET_EXCEL_FILE, writable=True)
+    '''
+    If you don't set save_formula_to_value to True,
+    you can't read cell value including formula again
+    (but Excel can) until you save the workbook via Excel.
+    '''
+    wb = Workbook(TARGET_EXCEL_FILE, writable=True, save_formula_to_value=True)
     # Write cell
     wb.set_cell(TARGET_EXCEL_SHEET, TARGET_WRITE_EXCEL_CELL, 100)
     # Write range

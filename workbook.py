@@ -24,11 +24,11 @@ INDEX_TYPE_OPENPYXL = 1
 
 class Workbook:
 
-    def __init__(self, filename, writable=False):
+    def __init__(self, filename, writable=False, save_formula_to_value=False):
         self.filename = filename
         self.extension = filename[filename.rfind("."):].lower()
         self.read_only = not writable
-        self.data_only = self.read_only
+        self.data_only = save_formula_to_value
         if self.extension == FILE_EXT_EXCEL_MACRO_WORKBOOK:
             self.keep_vba = True
         elif self.extension == FILE_EXT_EXCEL_WORKBOOK:
@@ -79,8 +79,7 @@ class Workbook:
                 cell.value = value
 
     def save(self):
-        if not self.read_only:
-            self.workbook.save(self.filename)
+        self.workbook.save(self.filename)
 
     # Use Excel range format and index is for Pandas
     @staticmethod
