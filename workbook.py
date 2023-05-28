@@ -28,7 +28,7 @@ class Workbook:
         self.filename = filename
         self.extension = filename[filename.rfind("."):].lower()
         self.read_only = not writable
-        self.data_only = save_formula_to_value
+        self.data_only = save_formula_to_value or self.read_only
         if self.extension == FILE_EXT_EXCEL_MACRO_WORKBOOK:
             self.keep_vba = True
         elif self.extension == FILE_EXT_EXCEL_WORKBOOK:
