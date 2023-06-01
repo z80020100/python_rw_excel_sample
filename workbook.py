@@ -78,7 +78,11 @@ class Workbook:
             for cell in row:
                 cell.value = value
 
-    def save(self):
+    def save(self, filename=None):
+        if filename is not None:
+            extension = filename[filename.rfind("."):].lower()
+            if extension == self.extension:
+                self.filename = filename
         self.workbook.save(self.filename)
 
     # Use Excel range format and index is for Pandas
